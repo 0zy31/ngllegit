@@ -14,7 +14,6 @@ async function getLocationFromIP(ip: string) {
       return { country: "Yerel", city: "Localhost", region: "" };
     }
 
-    // ⚠️ Netlify'da HTTP bazen sorun çıkarır → HTTPS yaptım
     const res = await fetch(
       `https://ip-api.com/json/${ip}?fields=country,city,regionName`
     );
@@ -28,8 +27,8 @@ async function getLocationFromIP(ip: string) {
         region: data.regionName ?? "",
       };
     }
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
+    console.log(err);
   }
 
   return { country: "Bilinmiyor", city: "Bilinmiyor", region: "" };
@@ -48,7 +47,8 @@ export async function POST(request: NextRequest) {
 
     const headers = request.headers;
 
-    let senderIP =
+    // 🔥 FIX: let → const (ESLint hatasını tamamen bitirir)
+    const senderIP =
       headers.get("x-nf-client-connection-ip") ||
       headers.get("cf-connecting-ip") ||
       headers.get("true-client-ip") ||
@@ -92,7 +92,10 @@ export async function GET(request: NextRequest) {
   const auth = request.headers.get("authorization");
 
   if (auth !== "Bearer killokiswirf") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
   }
 
   return NextResponse.json({ messages: getMessages() });
